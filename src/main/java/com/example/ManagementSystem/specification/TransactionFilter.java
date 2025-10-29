@@ -1,5 +1,6 @@
 package com.example.ManagementSystem.specification;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,17 +81,29 @@ public class TransactionFilter {
 
     public static Specification<Transaction> byMonthAndYear(int month, int year) {
         return (root, query, criteriaBuilder) -> {
-            // Use the month and year function on the createdAt date field
-            Expression<Integer> monthExpression = criteriaBuilder.function("month", Integer.class,
-                    root.get("createdAt"));
-            Expression<Integer> yearExpression = criteriaBuilder.function("year", Integer.class, root.get("createdAt"));
 
-            // Create predicates for the month and year
-            Predicate monthPredicate = criteriaBuilder.equal(monthExpression, month);
-            Predicate yearPredicate = criteriaBuilder.equal(yearExpression, year);
+                // MySQL
+        //     // Use the month and year function on the createdAt date field
+        //     Expression<Integer> monthExpression = criteriaBuilder.function("month", Integer.class,
+        //             root.get("createdAt"));
+        //     Expression<Integer> yearExpression = criteriaBuilder.function("year", Integer.class, root.get("createdAt"));
 
-            // Combine the month and year predicates
-            return criteriaBuilder.and(monthPredicate, yearPredicate);
+        //     // Create predicates for the month and year
+        //     Predicate monthPredicate = criteriaBuilder.equal(monthExpression, month);
+        //     Predicate yearPredicate = criteriaBuilder.equal(yearExpression, year);
+
+        //     // Combine the month and year predicates
+        //     return criteriaBuilder.and(monthPredicate, yearPredicate);
+
+                // Postgres
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        return criteriaBuilder.between(
+                root.get("createdAt"),
+                start.atStartOfDay(),
+                end.atTime(23, 59, 59)
+                );
         };
     }
 

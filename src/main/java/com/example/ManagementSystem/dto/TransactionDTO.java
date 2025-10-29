@@ -3,8 +3,7 @@ package com.example.ManagementSystem.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import org.springframework.transaction.TransactionStatus;
-
+import com.example.ManagementSystem.enums.TransactionStatus;
 import com.example.ManagementSystem.enums.TransactionType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
