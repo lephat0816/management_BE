@@ -1,6 +1,7 @@
 package com.example.ManagementSystem.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import org.modelmapper.TypeToken;
 import com.example.ManagementSystem.dto.LoginRequest;
 import com.example.ManagementSystem.dto.RegisterRequest;
 import com.example.ManagementSystem.dto.Response;
+import com.example.ManagementSystem.dto.TransactionDTO;
 import com.example.ManagementSystem.dto.UserDTO;
 import com.example.ManagementSystem.enums.UserRole;
 import com.example.ManagementSystem.exception.InvalidCredentialsException;
@@ -113,46 +115,53 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response updateUser(Long id, UserDTO userDTO) {
         User existingUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
-        if (userDTO.getEmail() != null) existingUser.setEmail(userDTO.getEmail());
-        if (userDTO.getPhoneNumber() != null) existingUser.setPhoneNumber(userDTO.getPhoneNumber());
-        if (userDTO.getName() != null) existingUser.setName(userDTO.getName());
-        if (userDTO.getRole() != null) existingUser.setRole(userDTO.getRole());
+        if (userDTO.getEmail() != null)
+            existingUser.setEmail(userDTO.getEmail());
+        if (userDTO.getPhoneNumber() != null)
+            existingUser.setPhoneNumber(userDTO.getPhoneNumber());
+        if (userDTO.getName() != null)
+            existingUser.setName(userDTO.getName());
+        if (userDTO.getRole() != null)
+            existingUser.setRole(userDTO.getRole());
 
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
         userRepository.save(existingUser);
         return Response.builder()
-                    .status(200)
-                    .message("User Successfully updated")
-                    .build();
+                .status(200)
+                .message("User Successfully updated")
+                .build();
     }
 
     @Override
     public Response deleteUser(Long id) {
-        userRepository.findById(id).orElseThrow(() ->new NotFoundException("User Not Found"));
+        userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
         userRepository.deleteById(id);
         return Response.builder()
-                    .status(200)
-                    .message("User Successfully Deleted")
-                    .build();
+                .status(200)
+                .message("User Successfully Deleted")
+                .build();
     }
 
     @Override
     public Response getUserTransaction(Long id) {
-        
+
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-        userDTO.getTransactions().forEach(transactionDTO -> {
-            transactionDTO.setUser(null);
-            transactionDTO.setSupplier(null);
-        });
+        List<TransactionDTO> transactionDTOs = user.getTransactions().stream()
+                .map((transaction -> {
+                    TransactionDTO transactionDTO = modelMapper.map((transaction), TransactionDTO.class);
+                    transactionDTO.setUser(null);
+                    return transactionDTO;
+                })).collect(Collectors.toList());
+        userDTO.setTransactions(transactionDTOs);
 
         return Response.builder()
-                    .status(200)
-                    .message("success")
-                    .user(userDTO)
-                    .build();
+                .status(200)
+                .message("success")
+                .user(userDTO)
+                .build();
     }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ManagementSystem.dto.Response;
 import com.example.ManagementSystem.dto.UserDTO;
+import com.example.ManagementSystem.model.User;
 import com.example.ManagementSystem.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,10 @@ public class UserController {
     @GetMapping("/transactions/{userId}")
     public ResponseEntity<Response> getUserAndTransactions(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getUserTransaction(userId));
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<User> getCurrentUser() {
+        return ResponseEntity.ok(userService.getCurrentLoggedInUser());
     }
 }

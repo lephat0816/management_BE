@@ -1,6 +1,5 @@
 package com.example.ManagementSystem.dto;
 
-import com.example.ManagementSystem.enums.TransactionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -25,5 +24,5 @@ public class TransactionRequest {
     private String description;
     private String note;
 
-    TransactionStatus status;
+    // TransactionStatus status;
 }

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.example.ManagementSystem.model.Transaction;
 
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 

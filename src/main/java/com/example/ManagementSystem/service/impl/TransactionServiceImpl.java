@@ -51,8 +51,6 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new NotFoundException("Transaction Not Found"));
         TransactionDTO transactionDTO = modelMapper.map(transaction, TransactionDTO.class);
 
-        transactionDTO.setUser(null);
-
         return Response.builder()
                 .status(200)
                 .message("success")
@@ -65,12 +63,6 @@ public class TransactionServiceImpl implements TransactionService {
         List<Transaction> transactions = transactionRepository.findAll(TransactionFilter.byMonthAndYear(month, year));
         List<TransactionDTO> transactionDTOs = modelMapper.map(transactions, new TypeToken<List<TransactionDTO>>() {
         }.getType());
-
-        transactionDTOs.forEach(transactionDTO -> {
-            transactionDTO.setUser(null);
-            transactionDTO.setProduct(null);
-            transactionDTO.setSupplier(null);
-        });
 
         return Response.builder()
                 .status(200)
@@ -90,11 +82,6 @@ public class TransactionServiceImpl implements TransactionService {
         List<TransactionDTO> transactionDTOs = modelMapper.map(transactionPage.getContent(),
                 new TypeToken<List<TransactionDTO>>() {
                 }.getType());
-        transactionDTOs.forEach(transactionDTO -> {
-            transactionDTO.setUser(null);
-            transactionDTO.setProduct(null);
-            transactionDTO.setSupplier(null);
-        });
 
         return Response.builder()
                 .status(200)
@@ -158,6 +145,9 @@ public class TransactionServiceImpl implements TransactionService {
         User user = userService.getCurrentLoggedInUser();
 
         // update the stock quantity and re-save
+        if (quantity > product.getStockQuantity()) {
+            throw new IllegalArgumentException("Return quantity exceeds current stock");
+        }
         product.setStockQuantity(product.getStockQuantity() - quantity);
         productRepository.save(product);
         // Create a transaction
@@ -189,6 +179,9 @@ public class TransactionServiceImpl implements TransactionService {
         User user = userService.getCurrentLoggedInUser();
 
         // update the stock quantity and re-save
+        if (quantity > product.getStockQuantity()) {
+            throw new IllegalArgumentException("Not enough stock to sell");
+        }
         product.setStockQuantity(product.getStockQuantity() - quantity);
         productRepository.save(product);
 
@@ -220,8 +213,8 @@ public class TransactionServiceImpl implements TransactionService {
         existingTransaction.setUpdateAt(LocalDateTime.now());
         transactionRepository.save(existingTransaction);
         return Response.builder()
-                    .status(200)
-                    .message("Transaction Status Successfully Updated")
-                    .build();
+                .status(200)
+                .message("Transaction Status Successfully Updated")
+                .build();
     }
 }

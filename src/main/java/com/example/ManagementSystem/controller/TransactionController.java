@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ManagementSystem.dto.Response;
 import com.example.ManagementSystem.dto.TransactionRequest;
+import com.example.ManagementSystem.enums.TransactionStatus;
 import com.example.ManagementSystem.service.TransactionService;
 
 import jakarta.validation.Valid;
@@ -60,7 +61,7 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> updateTransactionStatus(@PathVariable Long id, @RequestBody TransactionRequest request) {
-        return ResponseEntity.ok(transactionService.updateTransactionStatus(id, request.getStatus()));
+    public ResponseEntity<Response> updateTransactionStatus(@PathVariable Long id, @RequestBody TransactionStatus status) {
+        return ResponseEntity.ok(transactionService.updateTransactionStatus(id, status));
     }
 }
