@@ -19,10 +19,12 @@ import com.example.ManagementSystem.dto.Response;
 import com.example.ManagementSystem.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -59,6 +61,7 @@ public class ProductController {
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam("productId") Long productId) {
+
         ProductDTO productDTO = new ProductDTO();
         productDTO.setName(name);
         productDTO.setSku(sku);
@@ -67,7 +70,7 @@ public class ProductController {
         productDTO.setStockQuantity(stockQuantity);
         productDTO.setCategoryId(categoryId);
         productDTO.setDescription(description);
-
+                
         return ResponseEntity.ok(productService.updateProduct(productDTO, imageFile));
     }
 

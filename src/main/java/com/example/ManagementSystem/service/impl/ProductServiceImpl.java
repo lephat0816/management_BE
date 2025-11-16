@@ -33,7 +33,9 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
 
     private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/product-image/";
-
+    // after front-end is setup change the image directory
+    private static final String IMAGE_DIRECTORY_2 = "/home/lepha/ManagementSystemFE/public/products/";
+    
     @Override
     public Response deleteProduct(Long id) {
         productRepository.findById(id)
@@ -88,7 +90,8 @@ public class ProductServiceImpl implements ProductService {
 
         if (imageFile != null && !imageFile.isEmpty()) {
             log.info("Image file exist");
-            String imagePath = saveImage(imageFile);
+            // String imagePath = saveImage(imageFile); //use this when haven't set up front end
+            String imagePath = saveImage2(imageFile);
             productToSave.setImageUrl(imagePath);
         }
         // save the product entity
@@ -120,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(productDTO.getProductId())
                 .orElseThrow(() -> new NotFoundException("Product Not Found"));
         if (imageFile != null && !imageFile.isEmpty()) {
-            String imagePath = saveImage(imageFile);
+            String imagePath = saveImage2(imageFile);
             existingProduct.setImageUrl(imagePath);
         }
         // check if category is to be changed for the products
@@ -183,5 +186,31 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Error saving Image: " + e.getMessage());
         }
         return imagePath;
+    }
+
+    private String saveImage2(MultipartFile imageFile) {
+        // validate image and check if it is greater than 1GIB
+        if (!imageFile.getContentType().startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
+            throw new IllegalArgumentException("Only image files under 1GIG is allowed");
+        }
+        // create the directory if it doesn't exist
+        File directory = new File(IMAGE_DIRECTORY_2);
+        if (!directory.exists()) {
+            directory.mkdir();
+            log.info("Directory was created");
+        }
+        // generate unique file name for the image
+        String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+
+        // get the absolute path of the image
+        String imagePath = IMAGE_DIRECTORY_2 + uniqueFileName;
+
+        try {
+            File destinationFile = new File(imagePath);
+            imageFile.transferTo(destinationFile); // we are writing the image to this folder
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error saving Image: " + e.getMessage());
+        }
+        return "products/" + uniqueFileName;
     }
 }
